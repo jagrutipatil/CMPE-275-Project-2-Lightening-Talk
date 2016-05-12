@@ -1,21 +1,14 @@
 #include<iostream>
+#include "Model.h"
 using namespace std;
 
-class Officer: public Human{
-	double processingTime;
-
-	public:
-		Officer(double processingTime);
-		void processStamp(Traveller);
-};
-
-Officer:: Officer(double pTime) {
+Officer:: Officer(string firstname, string lastname, double pTime) : Human(firstname, lastname) {
 	processingTime = pTime;
 }
 
-void processStamp(Traveller t) {
-	cout << "Stamping Declined for Traveler: " + t.firstName + " " + t.lastName;
-	if(t.isValidVisa) {
+void processStamp(Traveler t) {
+	cout << "Stamping Declined for Traveler: " + t.getFirstName() + " " + t.getLastName();
+	if(t.ifValidVisa()) {
 		t.setStampingStatus(true);
 	} else {
 		t.setStampingStatus(false);

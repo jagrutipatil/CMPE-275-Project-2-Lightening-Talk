@@ -1,25 +1,12 @@
 #include<iostream>
+#include "Model.h"
 
 using namespace std;
 
-class Traveler: public Human{
-	private:
-		string visaType;
-		bool isValidVisa;
-		bool isStampingDone;
+Traveler:: Traveler() {
+}
 
-	public:
-		Traveler(string);
-		string getVisaType();
-		bool ifValidVisa();
-		bool ifStampingDone();
-		void setVisaStatus(bool);
-		void setStampingStatus(bool);
-
-};
-
-
-Traveler::Traveler(string visatype) {
+Traveler::Traveler(string firstname, string lastname, string visatype): Human(firstname, lastname) {
 	visaType = visatype;
 	isValidVisa = true;
 	isStampingDone = false;
@@ -46,3 +33,8 @@ void Traveler:: setVisaStatus(bool status) {
 void Traveler:: setStampingStatus(bool stampStatus) {
 	isStampingDone = stampStatus;
 }
+
+//TravelerNode:: TravelerNode(Traveler inputTraveler) {
+//	traveler = inputTraveler;
+//	cout<<"Initializing Traveler List";
+//}
