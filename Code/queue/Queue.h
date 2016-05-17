@@ -1,4 +1,6 @@
-#include "../model/Model.h"
+#ifndef Traveler
+	#include "../model/Model.h"
+#endif
 
 struct TravelerNode{
 	Traveler travel;

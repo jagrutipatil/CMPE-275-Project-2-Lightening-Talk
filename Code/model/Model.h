@@ -12,6 +12,8 @@ class Human {
 		Human(string, string);
 		string getFirstName();
 		string getLastName();
+		void setFirstName(string);
+		void setLastName(string);
 };
 
 class Traveler: public Human{
@@ -35,7 +37,9 @@ class Officer: public Human{
 	double processingTime;
 
 	public:
+		Officer();
 		Officer(string, string, double);
 		void processStamp(Traveler);
+		void setProcessingTime(double);
 };
 

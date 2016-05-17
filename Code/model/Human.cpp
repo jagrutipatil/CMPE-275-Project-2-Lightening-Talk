@@ -17,3 +17,11 @@ string Human::getLastName() {
 	return lastName;
 }
 
+void Human::setFirstName(string fname) {
+	firstName = fname;
+}
+
+void Human::setLastName(string lname) {
+	lastName = lname;
+}
+
