@@ -13,8 +13,7 @@ void batchTravelers() {
 		Traveler* t = new Traveler;
 		t->setFirstName("Jagruti");
 		t->setLastName("Patil");
-//		t->setvisa
-
+		t->setVisaType("F1");
 		queue.enqueue(t);
 	}
 }
@@ -31,7 +30,7 @@ void addOfficers() {
 }
 
 void progressWork() {
-	cout << "Started Processing Work";
+	cout << "\nStarted Processing Work";
 
 	while (queue.size() > 0) {
 		 Officer* offc = stmps.getAvailableOfficer();
