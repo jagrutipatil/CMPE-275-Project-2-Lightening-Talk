@@ -4,6 +4,8 @@
 using namespace std;
 
 Traveler:: Traveler() {
+	isValidVisa = true;
+	isStampingDone = false;
 }
 
 Traveler::Traveler(string firstname, string lastname, string visatype): Human(firstname, lastname) {
@@ -16,6 +18,11 @@ Traveler::Traveler(string firstname, string lastname, string visatype): Human(fi
 string Traveler:: getVisaType() {
 	return visaType;
 }
+
+void Traveler:: setVisaType(string visa) {
+	visaType = visa;
+}
+
 
 bool Traveler:: ifValidVisa() {
 	return isValidVisa;

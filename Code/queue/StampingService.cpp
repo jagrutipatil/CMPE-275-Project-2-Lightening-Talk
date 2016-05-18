@@ -11,6 +11,8 @@
 namespace stampingService {
 
 StampingService::StampingService() {
+	availableOfficers.reserve(sizeof(Officer)*10);
+	busyOfficers.reserve(sizeof(Officer)*10);
 }
 
 StampingService::~StampingService() {

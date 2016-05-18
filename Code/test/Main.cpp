@@ -10,36 +10,45 @@ int count = 10;
 
 void batchTravelers() {
 	for (int i = 0; i < count; i++) {
-		Traveler t("Jagruti " , "Patil", "F1");
+		Traveler* t = new Traveler;
+		t->setFirstName("Jagruti");
+		t->setLastName("Patil");
+//		t->setvisa
+
 		queue.enqueue(t);
 	}
 }
 
 void addOfficers() {
 	for (int i = 0; i < count; i++) {
-		Officer* offc;
-//		offc->;
-//		offc->lastName = "Offcer1";
-		offc->setProcessingTime(i+1);
+		Officer* offc = new Officer;
+
+		offc->setFirstName("Officer");
+		offc->setLastName("Last Name");
+		offc->setProcessingTime(1.0);
 		stmps.addOfficer(offc);
 	}
 }
 
 void progressWork() {
-	for (int i = 0; i < count; i++) {
+	cout << "Started Processing Work";
+
+	while (queue.size() > 0) {
 		 Officer* offc = stmps.getAvailableOfficer();
-		 offc->processStamp(queue.dequeue());
+		 Traveler* traveler = queue.dequeue();
+		 offc->processStamp(traveler);
 	}
 }
 
 
 int main(int argc, char* argv[]) {
-	cout<<"Adding batch of travelers";
+	cout<<"\nAdding batch of travelers";
 	batchTravelers();
 
-	cout<<"Adding batch of officers";
+
+	cout<<"\nAdding batch of officers";
 	addOfficers();
 
-	cout<<"Process the batch";
+	cout<<"\nProcess the batch";
 	progressWork();
 }

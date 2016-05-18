@@ -28,9 +28,9 @@ class Traveler: public Human{
 		string getVisaType();
 		bool ifValidVisa();
 		bool ifStampingDone();
+		void setVisaType(string);
 		void setVisaStatus(bool);
 		void setStampingStatus(bool);
-
 };
 
 class Officer: public Human{
@@ -39,7 +39,7 @@ class Officer: public Human{
 	public:
 		Officer();
 		Officer(string, string, double);
-		void processStamp(Traveler);
+		void processStamp(Traveler*);
 		void setProcessingTime(double);
 };
 

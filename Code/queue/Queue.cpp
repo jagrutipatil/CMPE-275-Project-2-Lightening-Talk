@@ -9,30 +9,35 @@ TravelQueue::TravelQueue() {
 	end = NULL;
 }
 
-void TravelQueue:: enqueue(Traveler t) {
+int TravelQueue:: size() {
+	return capacity;
+}
+
+void TravelQueue:: enqueue(Traveler* t) {
 	TravelerNode *temp = new TravelerNode;
     temp->travel = t;
     temp->next = NULL;
 
-    if(start == NULL){
+    capacity++;
+    if (start == NULL){
         start = temp;
-    }else{
+    } else{
         end->next = temp;
     }
     end = temp;
 }
 
-Traveler TravelQueue:: dequeue() {
-    TravelerNode *temp = new TravelerNode;
+Traveler* TravelQueue:: dequeue() {
+    Traveler *temp = NULL;
 
-    if(start == NULL){
+    if (start == NULL) {
         cout<<"\nNo elements in Queue\n";
     }else{
-        temp = start;
+    	capacity--;
+        temp = start->travel;
         start = start->next;
-//        delete temp;
     }
-    return temp->travel;
+    return temp;
 }
 
 void TravelQueue:: print() {
@@ -43,7 +48,7 @@ void TravelQueue:: print() {
         cout<<"\nEmpty Queue";
     }else{
         while(temp != NULL){
-            cout<<"\nName: " << temp->travel.getFirstName() + " " + temp->travel.getLastName();
+            cout<<"\nName: " << temp->travel->getFirstName() + " " + temp->travel->getLastName();
             temp = temp->next;
         }
     }

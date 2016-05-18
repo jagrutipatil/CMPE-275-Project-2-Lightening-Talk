@@ -13,12 +13,13 @@ Officer:: Officer(string firstname, string lastname, double pTime) : Human(first
 	processingTime = pTime;
 }
 
-void Officer::processStamp(Traveler t) {
-	cout << "Stamping Declined for Traveler: " + t.getFirstName() + " " + t.getLastName();
-	if(t.ifValidVisa()) {
-		t.setStampingStatus(true);
+void Officer::processStamp(Traveler* t) {
+	if(t->ifValidVisa()) {
+		cout << "\nStamping Processed for Traveler: " + t->getFirstName() + " " + t->getLastName();
+		t->setStampingStatus(true);
 	} else {
-		t.setStampingStatus(false);
+		cout << "\nStamping Declined for Traveler: " + t->getFirstName() + " " + t->getLastName();
+		t->setStampingStatus(false);
 	}
 }
 
