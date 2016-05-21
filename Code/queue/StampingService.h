@@ -12,10 +12,6 @@
 #include "../queue/Queue.h"
 #include "vector"
 
-#ifdef Officer
-	#include "../model/Model.h"
-#endif
-
 using namespace std;
 
 namespace stampingService {

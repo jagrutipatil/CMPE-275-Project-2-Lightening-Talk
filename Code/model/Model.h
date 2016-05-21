@@ -41,6 +41,7 @@ class Officer: public Human{
 		Officer();
 		Officer(string, string, double);
 		void processStamp(Traveler*);
+		void processStamp(Traveler);
 		void setProcessingTime(double);
 };
 
