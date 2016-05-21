@@ -41,6 +41,15 @@ void Traveler:: setStampingStatus(bool stampStatus) {
 	isStampingDone = stampStatus;
 }
 
+string boolstring( bool b ) {
+	return b ? "true" : "false";
+}
+
+
+string Traveler:: toString() {
+	return getFirstName() + " | " + getLastName() + " | " + getVisaType() + " | " + boolstring(isValidVisa) + " | " + boolstring(isStampingDone) + "\n";
+}
+
 //TravelerNode:: TravelerNode(Traveler inputTraveler) {
 //	traveler = inputTraveler;
 //	cout<<"Initializing Traveler List";

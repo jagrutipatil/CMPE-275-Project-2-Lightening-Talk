@@ -4,6 +4,7 @@
 
 using namespace stampingService;
 
+namespace Main {
 TravelQueue queue;
 StampingService stmps;
 int count = 10;
@@ -29,25 +30,25 @@ void addOfficers() {
 	}
 }
 
+
 void progressWork() {
 	cout << "\nStarted Processing Work";
 
-	while (queue.size() > 0) {
+	if (queue.size() > 0) {
 		 Officer* offc = stmps.getAvailableOfficer();
 		 Traveler* traveler = queue.dequeue();
 		 offc->processStamp(traveler);
 	}
 }
-
-
-int main(int argc, char* argv[]) {
-	cout<<"\nAdding batch of travelers";
-	batchTravelers();
-
-
-	cout<<"\nAdding batch of officers";
-	addOfficers();
-
-	cout<<"\nProcess the batch";
-	progressWork();
 }
+//int main(int argc, char* argv[]) {
+//	cout<<"\nAdding batch of travelers";
+//	batchTravelers();
+//
+//
+//	cout<<"\nAdding batch of officers";
+//	addOfficers();
+//
+//	cout<<"\nProcess the batch";
+//	progressWork();
+//}

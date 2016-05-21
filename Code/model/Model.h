@@ -31,6 +31,7 @@ class Traveler: public Human{
 		void setVisaType(string);
 		void setVisaStatus(bool);
 		void setStampingStatus(bool);
+		string toString();
 };
 
 class Officer: public Human{
