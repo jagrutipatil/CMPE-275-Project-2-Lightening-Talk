@@ -5,15 +5,48 @@
  *      Author: jagruti
  */
 
-#include "../queue/Queue.h"
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include "omp.h"
 
-//int main(int argc, char* argv[]) {
-//	TravelQueue queue;
-//
-//	for (int i = 0; i < 10; i++) {
-//		Traveler t("Jagruti ", "Patil", "F1");
-//		queue.enqueue(t);
-//	}
-//
-//	queue.print();
-//}
+#define NUM_THREADS 5
+using namespace std;
+
+int main(int argc, char* argv[]) {
+			std::ifstream is;
+			string filePath = "/home/jagruti/workspace/CMPE-275-Project-2-Lightening-Talk/Code/data.txt";
+			string firstname, lastname, visaType, isValidVisa, isStampingDone;
+			std::ifstream infile(filePath.c_str());
+			std::string line;
+			int n;
+			cout << "Enter the value of n";
+			cin >> n;
+			int i = 0;
+			int arr[n];
+
+			arr[i] = int(infile.tellg());
+			while (std::getline(infile, line)) {
+				if (i < n) {
+					i++;
+					arr[i] = int(infile.tellg());
+				}
+				std::istringstream iss(line);
+			}
+
+			i = 0;
+//			omp_set_num_threads(NUM_THREADS);
+			string s;
+
+			for (i = 0; i < n; i++) {
+				infile.clear();
+				infile.seekg(arr[i]);
+				getline(infile, s);
+				std::istringstream iss(s);
+				cout << i << " "<< s << endl;
+			}
+}
