@@ -7,7 +7,7 @@
 #include <sstream>
 #include "omp.h"
 
-#define NUM_THREADS 5
+#define NUM_THREADS 20
 #include "../queue/StampingService.h"
 string filePath = "/home/jagruti/workspace/CMPE-275-Project-2-Lightening-Talk/Code/data.txt";
 int count = 20000;
@@ -177,16 +177,14 @@ void progressWork() {
 		int id = omp_get_thread_num();
 		while (i < count) {
 			cout <<endl << "Thread:" << id;
-			Officer* offc = stmps.getAvailableOfficer();
+//			Officer* offc = stmps.getAvailableOfficer();
 			if(i < count && travelers[i].ifValidVisa()) {
-//				cout << "\nStamping Processed for Traveler: " + travelers[i].getFirstName() + " " + travelers[i].getLastName();
-				travelers[i].setStampingStatus(true);
+					travelers[i].setStampingStatus(true);
 			} else {
-//				cout << "\nStamping Declined for Traveler: " + travelers[i].getFirstName() + " " + travelers[i].getLastName();
 				travelers[i].setStampingStatus(false);
 			}
 
-//			#pragma omp critical
+			#pragma omp critical
 				 i++;
 		}
 	}
