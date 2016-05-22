@@ -5,7 +5,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "omp.h"
 
+#define NUM_THREADS 10
 #include "../queue/StampingService.h"
 string filePath = "/home/jagruti/workspace/CMPE-275-Project-2-Lightening-Talk/Code/data.txt";
 
@@ -106,19 +108,11 @@ void readFromFile() {
 namespace Main {
 TravelQueue queue;
 StampingService stmps;
-int count = 20;
+int count = 10;
 Traveler *travelers = new Traveler[count];
 
 
 void batchTravelers() {
-//	for (int i = 0; i < count; i++) {
-//		Traveler* t = new Traveler;
-//		t->setFirstName("Jagruti");
-//		t->setLastName("Patil");
-//		t->setVisaType("F1");
-//		queue.enqueue(t);
-//	}
-
 	int byte;
 	string firstname, lastname, visaType, isValidVisa, isStampingDone;
 	std::ifstream infile(filePath.c_str());
@@ -173,24 +167,27 @@ void addOfficers() {
 
 void progressWork() {
 	cout << "\nStarted Processing Work";
-
-//	if (queue.size() > 0) {
-//		Officer* offc = stmps.getAvailableOfficer();
-//		Traveler* traveler = queue.dequeue();
-//		offc->processStamp(traveler);
-//	}
-
 	int i = 0;
-	while (i < count) {
-		Officer* offc = stmps.getAvailableOfficer();
-		if(travelers[i].ifValidVisa()) {
-			cout << "\nStamping Processed for Traveler: " + travelers[i].getFirstName() + " " + travelers[i].getLastName();
-			travelers[i].setStampingStatus(true);
-		} else {
-			cout << "\nStamping Declined for Traveler: " + travelers[i].getFirstName() + " " + travelers[i].getLastName();
-			travelers[i].setStampingStatus(false);
+	omp_set_num_threads(NUM_THREADS);
+
+	#pragma omp parallel
+	{
+		int id = omp_get_thread_num();
+		while (i < count) {
+			cout << endl <<"Thread: " << id << " counter value:" << i;
+			Officer* offc = stmps.getAvailableOfficer();
+
+			if(travelers[i].ifValidVisa()) {
+				cout << "\nStamping Processed for Traveler: " + travelers[i].getFirstName() + " " + travelers[i].getLastName();
+				travelers[i].setStampingStatus(true);
+			} else {
+				cout << "\nStamping Declined for Traveler: " + travelers[i].getFirstName() + " " + travelers[i].getLastName();
+				travelers[i].setStampingStatus(false);
+			}
+
+			#pragma omp critical
+				i++;
 		}
-		i++;
 	}
 }
 
@@ -198,7 +195,7 @@ void printTravelers() {
 	for (int i = 0; i < count; i++) {
 		cout << travelers[i].toString();
 	}
-}
+  }
 }
 
 namespace randomRead {
