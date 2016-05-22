@@ -7,20 +7,21 @@
 #include <sstream>
 #include "omp.h"
 
-#define NUM_THREADS 10
+#define NUM_THREADS 5
 #include "../queue/StampingService.h"
 string filePath = "/home/jagruti/workspace/CMPE-275-Project-2-Lightening-Talk/Code/data.txt";
-
+int count = 20000;
 using namespace stampingService;
 
+
 namespace dataGenerator {
-int count = 20000;
+Traveler *travelers = new Traveler[count];
 
 string visa[] = { "F1", "B1", "H1B", "F2", "F3", "H2", "L1", "L2" };
 
-char prefix[][5] = { "", "din", "jon", "hpn", "lig", "vpn", "tim" };
+char prefix[][5] = { "ab", "din", "jon", "hpn", "lig", "vpn", "tim" };
 
-char suffix[][5] = { "", "doc", "lab", "tom", "har", "gen", "linr", "vnn",
+char suffix[][5] = { "bd", "doc", "lab", "tom", "har", "gen", "linr", "vnn",
 		"tmq", "hbm", "lin", "hel", "man", "abc", "xyz", "pqr", "mnp", "tdf",
 		"hbp" };
 
@@ -38,7 +39,6 @@ void generateName(char* name) {
 }
 
 void writeToFile() {
-	count = 20000;
 	Traveler *travelers = new Traveler[count];
 	ofstream myfile;
 	char name[22];
@@ -100,17 +100,15 @@ void readFromFile() {
 
 	//travelers array will have all data
 	infile.close();
+   }
 }
-}
-
 
 
 namespace Main {
-TravelQueue queue;
-StampingService stmps;
-int count = 10;
 Traveler *travelers = new Traveler[count];
 
+TravelQueue queue;
+StampingService stmps;
 
 void batchTravelers() {
 	int byte;
@@ -118,6 +116,7 @@ void batchTravelers() {
 	std::ifstream infile(filePath.c_str());
 	std::string line;
 	int i = 0;
+
 	while (std::getline(infile, line)) {
 		std::istringstream iss(line);
 		if (i < count) {
@@ -129,9 +128,11 @@ void batchTravelers() {
 			visaType = strtok(NULL, " | ");
 			isValidVisa = strtok(NULL, " | ");
 			isStampingDone = strtok(NULL, " | ");
+
 			travelers[i].setFirstName(firstname);
 			travelers[i].setLastName(lastname);
 			travelers[i].setVisaType(visaType);
+
 			if (isValidVisa.compare("true") == 0) {
 				travelers[i].setVisaStatus(true);
 			} else {
@@ -143,10 +144,11 @@ void batchTravelers() {
 			} else {
 				travelers[i].setStampingStatus(false);
 			}
+
 			i++;
 		}
-
 	}
+
 	//travelers array will have all data
 	infile.close();
 }
@@ -174,19 +176,18 @@ void progressWork() {
 	{
 		int id = omp_get_thread_num();
 		while (i < count) {
-			cout << endl <<"Thread: " << id << " counter value:" << i;
+			cout <<endl << "Thread:" << id;
 			Officer* offc = stmps.getAvailableOfficer();
-
-			if(travelers[i].ifValidVisa()) {
-				cout << "\nStamping Processed for Traveler: " + travelers[i].getFirstName() + " " + travelers[i].getLastName();
+			if(i < count && travelers[i].ifValidVisa()) {
+//				cout << "\nStamping Processed for Traveler: " + travelers[i].getFirstName() + " " + travelers[i].getLastName();
 				travelers[i].setStampingStatus(true);
 			} else {
-				cout << "\nStamping Declined for Traveler: " + travelers[i].getFirstName() + " " + travelers[i].getLastName();
+//				cout << "\nStamping Declined for Traveler: " + travelers[i].getFirstName() + " " + travelers[i].getLastName();
 				travelers[i].setStampingStatus(false);
 			}
 
-			#pragma omp critical
-				i++;
+//			#pragma omp critical
+				 i++;
 		}
 	}
 }
@@ -198,46 +199,17 @@ void printTravelers() {
   }
 }
 
-namespace randomRead {
-void randomReadFromFile() {
-	std::ifstream is;
-	string filePath =
-			"/home/jagruti/workspace/CMPE-275-Project-2-Lightening-Talk/Code/data.txt";
-	string firstname, lastname, visaType, isValidVisa, isStampingDone;
-	std::ifstream infile(filePath.c_str());
-	std::string line;
-	int n;
-	cout << "Enter the value of n";
-	cin >> n;
-	int i = 0;
-	int arr[n];
-
-	arr[i] = int(infile.tellg());
-	while (std::getline(infile, line)) {
-		if (i < n) {
-			i++;
-			arr[i] = int(infile.tellg());
-		}
-		std::istringstream iss(line);
-	}
-
-	i = 0;
-//			omp_set_num_threads(NUM_THREADS);
-	string s;
-
-	for (i = 0; i < n; i++) {
-		infile.clear();
-		infile.seekg(arr[i]);
-		getline(infile, s);
-		std::istringstream iss(s);
-	}
-}
-}
-
 
 int main(int argc, char* argv[]) {
+	cout << "Creating Batch Travelers";
 	Main:: batchTravelers();
+
+	cout << "Adding Batch Officers";
 	Main:: addOfficers();
+
+	cout << "Progressing work";
 	Main:: progressWork();
-	Main:: printTravelers();
+
+//	cout << "Printing Travelers";
+//	Main:: printTravelers();
 }
