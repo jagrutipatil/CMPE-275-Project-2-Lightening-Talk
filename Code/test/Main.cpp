@@ -10,119 +10,69 @@
 #include <chrono>
 #define NUM_THREADS 8
 #include "../queue/StampingService.h"
-string filePath = "/cygdrive/c/Users/awais_000/Documents/Gash/CMPE-275-Project-2-Lightening-Talk/Code/data.txt";
-int count = 60000;
+string filePath = "/home/jagruti/workspace/CMPE-275-Project-2-Lightening-Talk/Code/data.txt";
+int count = 200;
 int *arr = new int[count];
+Traveler *travelers = new Traveler[count];
 
 using namespace stampingService;
 
-
 namespace dataGenerator {
-Traveler *travelers = new Traveler[count];
 
-string visa[] = { "F1", "B1", "H1B", "F2", "F3", "H2", "L1", "L2" };
+	string visa[] = { "F1", "B1", "H1B", "F2", "F3", "H2", "L1", "L2" };
 
-char prefix[][5] = { "ab", "din", "jon", "hpn", "lig", "vpn", "tim" };
+	char prefix[][5] = { "ab", "din", "jon", "hpn", "lig", "vpn", "tim" };
 
-char suffix[][5] = { "bd", "doc", "lab", "tom", "har", "gen", "linr", "vnn",
-		"tmq", "hbm", "lin", "hel", "man", "abc", "xyz", "pqr", "mnp", "tdf",
-		"hbp" };
+	char suffix[][5] = { "bd", "doc", "lab", "tom", "har", "gen", "linr", "vnn",
+			"tmq", "hbm", "lin", "hel", "man", "abc", "xyz", "pqr", "mnp", "tdf",
+			"hbp" };
 
-char stem[][10] = { "jagr", "patil", "awai", "preet", "vija", "hell", "tomr",
-		"sdf", "ert", "vpnf", "hlmn", "timer", "henr", "zxc", "xyz", "bnm",
-		"hjk", "jkl", "dfg" };
+	char stem[][10] = { "jagr", "patil", "awai", "preet", "vija", "hell", "tomr",
+			"sdf", "ert", "vpnf", "hlmn", "timer", "henr", "zxc", "xyz", "bnm",
+			"hjk", "jkl", "dfg" };
 
-void generateName(char* name) {
-	name[0] = 0;
-	strcat(name, prefix[(rand() % 7)]);
-	strcat(name, stem[(rand() % 20)]);
-	strcat(name, suffix[(rand() % 16)]);
-	name[0] = toupper(name[0]);
-	return;
-}
-
-void writeToFile() {
-	Traveler *travelers = new Traveler[count];
-	ofstream myfile;
-	char name[22];
-	myfile.open(filePath.c_str(), ios::app | ios::out | ios::in);
-
-	for (int i = 0; i < count; i++) {
-		generateName(name);
-		travelers[i].setFirstName(name);
-		generateName(name);
-		travelers[i].setLastName(name);
-		travelers[i].setStampingStatus(false);
-		travelers[i].setVisaType(visa[i % 8]);
-		string length = travelers[i].toString().length() + "";
-		int totalLength = length.length() + 3;
-		myfile << totalLength << " | " << travelers[i].toString();
+	void generateName(char* name) {
+		name[0] = 0;
+		strcat(name, prefix[(rand() % 7)]);
+		strcat(name, stem[(rand() % 20)]);
+		strcat(name, suffix[(rand() % 16)]);
+		name[0] = toupper(name[0]);
+		return;
 	}
 
-	myfile.close();
-}
+	void writeToFile() {
+		Traveler *ltravelers = new Traveler[count];
+		ofstream myfile;
+		char name[22];
+		myfile.open(filePath.c_str(), ios::app | ios::out | ios::in);
 
-void readFromFile() {
-	Traveler *travelers = new Traveler[count];
-	int byte;
-	string firstname, lastname, visaType, isValidVisa, isStampingDone;
-	std::ifstream infile(filePath.c_str());
-	std::string line;
-	int i = 0;
-	while (std::getline(infile, line)) {
-		std::istringstream iss(line);
-
-		char * dup = strdup(line.c_str());
-		char * token = strtok(dup, " | ");
-		byte = atoi(token);
-		firstname = strtok(NULL, " | ");
-		lastname = strtok(NULL, " | ");
-		visaType = strtok(NULL, " | ");
-		isValidVisa = strtok(NULL, " | ");
-		isStampingDone = strtok(NULL, " | ");
-		travelers[i].setFirstName(firstname);
-		travelers[i].setLastName(lastname);
-		travelers[i].setVisaType(visaType);
-		if (isValidVisa.compare("true") == 0) {
-			travelers[i].setVisaStatus(true);
-		} else {
-			travelers[i].setVisaStatus(false);
+		for (int i = 0; i < count; i++) {
+			generateName(name);
+			ltravelers[i].setFirstName(name);
+			generateName(name);
+			ltravelers[i].setLastName(name);
+			ltravelers[i].setStampingStatus(false);
+			ltravelers[i].setVisaType(visa[i % 8]);
+			string length = ltravelers[i].toString().length() + "";
+			int totalLength = length.length() + 3;
+			myfile << totalLength << " | " << ltravelers[i].toString();
 		}
 
-		if (isStampingDone.compare("true") == 0) {
-			travelers[i].setStampingStatus(true);
-		} else {
-			travelers[i].setStampingStatus(false);
-		}
-
-		//MAKE USE of BYTE or CREATE EXTRA FIELD IN TRAVELER CLASS
-		cout << travelers[i].toString();
-		i++;
+		ltravelers = NULL;
+		delete ltravelers;
+		myfile.close();
 	}
 
-	//travelers array will have all data
-	infile.close();
-   }
-}
+	void readFromFile() {
+		Traveler *travelers = new Traveler[count];
+		int byte;
+		string firstname, lastname, visaType, isValidVisa, isStampingDone;
+		std::ifstream infile(filePath.c_str());
+		std::string line;
+		int i = 0;
+		while (std::getline(infile, line)) {
+			std::istringstream iss(line);
 
-
-namespace Main {
-Traveler *travelers = new Traveler[count];
-TravelQueue queue;
-StampingService stmps;
-
-void batchTravelers() {
-	int byte;
-	string firstname, lastname, visaType, isValidVisa, isStampingDone;
-	std::ifstream infile(filePath.c_str());
-	std::string line;
-	int i = 0;
-
-	while (std::getline(infile, line)) {
-		std::istringstream iss(line);
-
-		if (i < count) {
-			
 			char * dup = strdup(line.c_str());
 			char * token = strtok(dup, " | ");
 			byte = atoi(token);
@@ -131,7 +81,6 @@ void batchTravelers() {
 			visaType = strtok(NULL, " | ");
 			isValidVisa = strtok(NULL, " | ");
 			isStampingDone = strtok(NULL, " | ");
-
 			travelers[i].setFirstName(firstname);
 			travelers[i].setLastName(lastname);
 			travelers[i].setVisaType(visaType);
@@ -146,92 +95,151 @@ void batchTravelers() {
 			} else {
 				travelers[i].setStampingStatus(false);
 			}
+
+			//MAKE USE of BYTE or CREATE EXTRA FIELD IN TRAVELER CLASS
+			cout << travelers[i].toString();
 			i++;
-			
 		}
-	}
 
-	//travelers array will have all data
-	infile.close();
+		//travelers array will have all data
+		infile.close();
+	   }
 }
 
-void addOfficers() {
-	char name[22];
-	for (int i = 0; i < count; i++) {
-		Officer* offc = new Officer;
 
-		dataGenerator::generateName(name);
-		offc->setFirstName(name);
-		dataGenerator::generateName(name);
-		offc->setLastName(name);
-		offc->setProcessingTime(1.0);
-		stmps.addOfficer(offc);
-	}
-}
+namespace Main {
+	Traveler *travelers = new Traveler[count];
+	TravelQueue queue;
+	StampingService stmps;
 
-void progressWork() {
-	cout << "\nStarted Processing Work"<<endl;
-	
-	
-	#pragma omp parallel
-	{
-		//int id = omp_get_thread_num();
-		int i = 0;
-
-		std::ifstream infile(filePath.c_str());
-		string line;
-
+	void batchTravelers() {
 		int byte;
 		string firstname, lastname, visaType, isValidVisa, isStampingDone;
+		std::ifstream infile(filePath.c_str());
+		std::string line;
+		int i = 0;
 
-		#pragma omp for
-		for(i=omp_get_thread_num(); i<count; i=i+8){
-			
-			//printf("Thread: %d\n",id);
-		
-			//			Officer* offc = stmps.getAvailableOfficer();
-			//cout<<"i: "<<i<<" arr[i]: "<<arr[i]<<endl;
-			//printf("In Loop\n");
-			infile.clear();
-			if(i<count){
-				infile.seekg(arr[i]);
-			}
-			getline(infile, line);
+		while (std::getline(infile, line)) {
 			std::istringstream iss(line);
-			//printf("i: %d, line: %s\n",i,line);
-			//cout<<"Line "<<i<<": "<<line<<endl;
-			char * dup = strdup(line.c_str());
-			char * token = strtok(dup, " | ");
-			byte = atoi(token);
-			firstname = strtok(NULL, " | ");
-			lastname = strtok(NULL, " | ");
-			visaType = strtok(NULL, " | ");
-			isValidVisa = strtok(NULL, " | ");
-			isStampingDone = strtok(NULL, " | ");
-			travelers[i].setFirstName(firstname);
-			travelers[i].setLastName(lastname);
-			travelers[i].setVisaType(visaType);
-			//cout<<travelers[i].toString();
 
-			if(i < count && travelers[i].ifValidVisa()) {
+			if (i < count) {
+
+				char * dup = strdup(line.c_str());
+				char * token = strtok(dup, " | ");
+				byte = atoi(token);
+				firstname = strtok(NULL, " | ");
+				lastname = strtok(NULL, " | ");
+				visaType = strtok(NULL, " | ");
+				isValidVisa = strtok(NULL, " | ");
+				isStampingDone = strtok(NULL, " | ");
+
+				travelers[i].setFirstName(firstname);
+				travelers[i].setLastName(lastname);
+				travelers[i].setVisaType(visaType);
+				if (isValidVisa.compare("true") == 0) {
+					travelers[i].setVisaStatus(true);
+				} else {
+					travelers[i].setVisaStatus(false);
+				}
+
+				if (isStampingDone.compare("true") == 0) {
 					travelers[i].setStampingStatus(true);
-			} else if( i <count){
-				travelers[i].setStampingStatus(false);
-			}
-			//#pragma omp critical
-				 //i++;
+				} else {
+					travelers[i].setStampingStatus(false);
+				}
+				i++;
 
-			
-			
+			}
+		}
+
+		//travelers array will have all data
+		infile.close();
+	}
+
+	void addOfficers() {
+		char name[22];
+		for (int i = 0; i < count; i++) {
+			Officer* offc = new Officer;
+
+			dataGenerator::generateName(name);
+			offc->setFirstName(name);
+			dataGenerator::generateName(name);
+			offc->setLastName(name);
+			offc->setProcessingTime(1.0);
+			stmps.addOfficer(offc);
 		}
 	}
-}
+	
+	void progressWork() {
+		cout << "\nStarted Processing Work"<<endl;
 
-void printTravelers() {
-	for (int i = 0; i < count; i++) {
-		cout << travelers[i].toString();
+		#pragma omp parallel
+		{
+			int i = 0;
+			cout << endl << "Total Threads: "<< omp_get_num_threads();
+			std::ifstream infile(filePath.c_str());
+			string line;
+			int byte;
+			string firstname, lastname, visaType, isValidVisa, isStampingDone;
+
+			for(i=omp_get_thread_num(); i < count; i=i + omp_get_num_threads()) {
+
+				cout<< endl <<"Thread: " << omp_get_thread_num();
+				infile.clear();
+				if(i < count) {
+					infile.seekg(arr[i]);
+				}
+				getline(infile, line);
+				std::istringstream iss(line);
+
+				char * dup = strdup(line.c_str());
+
+				#pragma omp critical
+				{
+					char * token = strtok(dup, " | ");
+					byte = atoi(token);
+					firstname = strtok(NULL, " | ");
+					lastname = strtok(NULL, " | ");
+					visaType = strtok(NULL, " | ");
+					isValidVisa = strtok(NULL, " | ");
+					isStampingDone = strtok(NULL, " | ");
+				}
+
+				if (i < count) {
+					travelers[i].setFirstName(firstname);
+				}
+
+				if (i < count) {
+					travelers[i].setLastName(lastname);
+				}
+
+				if (i < count) {
+					travelers[i].setVisaType(visaType);
+				}
+
+
+				if(i < count && travelers[i].ifValidVisa()) {
+					if (allQuestionsAnswered(travelers[i])) {
+						travelers[i].setStampingStatus(true);
+					}
+
+
+				} else if( i < count) {
+					travelers[i].setStampingStatus(false);
+				}
+			}
+		}
 	}
-  }
+
+	bool allQuestionsAnswered(Traveler travelers) {
+
+	}
+
+	void printTravelers() {
+		for (int i = 0; i < count; i++) {
+			cout << travelers[i].toString();
+		}
+	  }
 }
 
 void readFirstCharacters(){
@@ -248,17 +256,26 @@ void readFirstCharacters(){
 		}
 }
 
+void cleanup() {
+  arr = NULL;
+  delete arr;
+
+  travelers = NULL;
+  delete travelers;
+}
+
 
 int main(int argc, char* argv[]) {
+
+//	dataGenerator::writeToFile();
 	
     std::chrono::time_point<std::chrono::system_clock> start, end;
-    
     readFirstCharacters();
 
-	//dataGenerator::writeToFile();
+
 
 	//cout << "Creating Batch Travelers"<<endl;
-	//Main:: batchTravelers();
+    //Main:: batchTravelers();
 
 	//cout << "Adding Batch Officers";
 	//Main:: addOfficers();
@@ -274,6 +291,6 @@ int main(int argc, char* argv[]) {
 
 	std::cout << "finished computation at " << endl
               << "elapsed time: " << elapsed_seconds.count() << "s\n";
-//	cout << "Printing Travelers";
-//	Main:: printTravelers();
+
+	cleanup();
 }
