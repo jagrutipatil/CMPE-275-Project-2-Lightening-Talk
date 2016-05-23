@@ -6,11 +6,14 @@
 #include <fstream>
 #include <sstream>
 #include "omp.h"
-
+#include <ctime>
+#include <chrono>
 #define NUM_THREADS 20
 #include "../queue/StampingService.h"
-string filePath = "/home/jagruti/workspace/CMPE-275-Project-2-Lightening-Talk/Code/data.txt";
-int count = 20000;
+string filePath = "/cygdrive/c/Users/awais_000/Documents/Gash/CMPE-275-Project-2-Lightening-Talk/Code/data.txt";
+int count = 60000;
+int *arr = new int[count];
+
 using namespace stampingService;
 
 
@@ -68,7 +71,6 @@ void readFromFile() {
 	int i = 0;
 	while (std::getline(infile, line)) {
 		std::istringstream iss(line);
-		cout << line << endl;
 
 		char * dup = strdup(line.c_str());
 		char * token = strtok(dup, " | ");
@@ -106,7 +108,6 @@ void readFromFile() {
 
 namespace Main {
 Traveler *travelers = new Traveler[count];
-
 TravelQueue queue;
 StampingService stmps;
 
@@ -119,7 +120,9 @@ void batchTravelers() {
 
 	while (std::getline(infile, line)) {
 		std::istringstream iss(line);
+
 		if (i < count) {
+			
 			char * dup = strdup(line.c_str());
 			char * token = strtok(dup, " | ");
 			byte = atoi(token);
@@ -132,7 +135,6 @@ void batchTravelers() {
 			travelers[i].setFirstName(firstname);
 			travelers[i].setLastName(lastname);
 			travelers[i].setVisaType(visaType);
-
 			if (isValidVisa.compare("true") == 0) {
 				travelers[i].setVisaStatus(true);
 			} else {
@@ -144,8 +146,8 @@ void batchTravelers() {
 			} else {
 				travelers[i].setStampingStatus(false);
 			}
-
 			i++;
+			
 		}
 	}
 
@@ -168,22 +170,42 @@ void addOfficers() {
 }
 
 void progressWork() {
-	cout << "\nStarted Processing Work";
+	cout << "\nStarted Processing Work"<<endl;
 	int i = 0;
-	omp_set_num_threads(NUM_THREADS);
-
+	std::ifstream is;
+	std::ifstream infile(filePath.c_str());
+	string line;
+	int byte;
+	string firstname, lastname, visaType, isValidVisa, isStampingDone;
 	#pragma omp parallel
 	{
-		int id = omp_get_thread_num();
+		//int id = omp_get_thread_num();
 		while (i < count) {
-			cout <<endl << "Thread:" << id;
+			//printf("Thread: %d\n",id);
 //			Officer* offc = stmps.getAvailableOfficer();
+			//cout<<"i: "<<i<<" arr[i]: "<<arr[i]<<endl;
+			infile.clear();
+			infile.seekg(arr[i]);
+			getline(infile, line);
+			//cout<<"Line "<<i<<": "<<line<<endl;
+			char * dup = strdup(line.c_str());
+			char * token = strtok(dup, " | ");
+			byte = atoi(token);
+			firstname = strtok(NULL, " | ");
+			lastname = strtok(NULL, " | ");
+			visaType = strtok(NULL, " | ");
+			isValidVisa = strtok(NULL, " | ");
+			isStampingDone = strtok(NULL, " | ");
+			travelers[i].setFirstName(firstname);
+			travelers[i].setLastName(lastname);
+			travelers[i].setVisaType(visaType);
+
+
 			if(i < count && travelers[i].ifValidVisa()) {
 					travelers[i].setStampingStatus(true);
 			} else {
 				travelers[i].setStampingStatus(false);
 			}
-
 			#pragma omp critical
 				 i++;
 		}
@@ -197,17 +219,46 @@ void printTravelers() {
   }
 }
 
+void readFirstCharacters(){
+		std::ifstream is;
+		std::ifstream infile(filePath.c_str());
+		std::string line;
+		int i = 1;
+		arr[0] = int(infile.tellg());
+		while (std::getline(infile, line)) {
+			if (i<count) {
+				arr[i] = int(infile.tellg());
+			}
+			i++;
+		}
+}
+
 
 int main(int argc, char* argv[]) {
-	cout << "Creating Batch Travelers";
-	Main:: batchTravelers();
+	
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    
+    readFirstCharacters();
 
-	cout << "Adding Batch Officers";
-	Main:: addOfficers();
+	//dataGenerator::writeToFile();
 
-	cout << "Progressing work";
+	//cout << "Creating Batch Travelers"<<endl;
+	//Main:: batchTravelers();
+
+	//cout << "Adding Batch Officers";
+	//Main:: addOfficers();
+	
+	cout << "Progressing work"<<endl;
+	start = std::chrono::system_clock::now();
 	Main:: progressWork();
+	end = std::chrono::system_clock::now();
+	
 
+	std::chrono::duration<double> elapsed_seconds = end-start;
+	
+
+	std::cout << "finished computation at " << endl
+              << "elapsed time: " << elapsed_seconds.count() << "s\n";
 //	cout << "Printing Travelers";
 //	Main:: printTravelers();
 }
