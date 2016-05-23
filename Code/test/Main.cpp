@@ -202,15 +202,7 @@ namespace Main {
 				std::istringstream iss(line);
 
 				char * dup = strdup(line.c_str());
-
-//					char * token = strtok(dup, " | ");
-//					byte = atoi(token);
-//					firstname = strtok(NULL, " | ");
-//					lastname = strtok(NULL, " | ");
-//					visaType = strtok(NULL, " | ");
-//					isValidVisa = strtok(NULL, " | ");
-//					isStampingDone = strtok(NULL, " | ");
-					char delimiter[] = " | ";
+				char delimiter[] = " | ";
 
 					firstname = line.substr(0, line.find(delimiter));
 					line = line.substr(line.find(delimiter)+1, line.length());
@@ -234,13 +226,10 @@ namespace Main {
 					travelers[i].setVisaType(visaType);
 				}
 
-
 				if(i < count && travelers[i].ifValidVisa()) {
 					if (allQuestionsAnswered(travelers[i])) {
 						travelers[i].setStampingStatus(true);
 					}
-
-
 				} else if( i < count) {
 					travelers[i].setStampingStatus(false);
 				}
@@ -249,7 +238,57 @@ namespace Main {
 	}
 
 
-	
+	void doSections() {
+		cout << "\nStarted Processing Work";
+		int i = 0;
+		omp_set_num_threads(NUM_THREADS);
+		#pragma omp parallel sections
+		  {
+			if (i < count) {
+				int id = omp_get_thread_num();
+				i++;
+				cout << endl << id;
+			}
+
+		#pragma omp section
+		{
+			#pragma omp parallel
+				{
+					while (i < count) {
+						int id = omp_get_thread_num();
+						cout << endl << "\n Thread:" << id;
+						if (i < count && travelers[i].ifValidVisa()) {
+							travelers[i].setStampingStatus(true);
+						} else {
+							travelers[i].setStampingStatus(false);
+						}
+
+						#pragma omp atomic
+							i++;
+					}
+				}
+		}
+
+		#pragma omp section
+			{
+				#pragma omp parallel
+					{
+						while (i < count) {
+							int id = omp_get_thread_num();
+							cout << endl << "\n Thread in here:" << id;
+							if (i < count && travelers[i].ifValidVisa()) {
+									travelers[i].setStampingStatus(true);
+							} else {
+								travelers[i].setStampingStatus(false);
+							}
+
+						#pragma omp atomic
+							i++;
+				}
+			}
+		}
+	}
+  }
 	void progressWork() {
 		cout << "\nStarted Sequential Processing Work"<<endl;
 			int i = 0;
@@ -260,22 +299,28 @@ namespace Main {
 
 			for(i = 0; i < count; i = i + 1) {
 				infile.clear();
-				if(i < count) {
-					infile.seekg(arr[i]);
-				}
+				infile.seekg(arr[i]);
+
 				getline(infile, line);
 				std::istringstream iss(line);
 
 				char * dup = strdup(line.c_str());
-
-
 				char * token = strtok(dup, " | ");
 				byte = atoi(token);
-				firstname = strtok(NULL, " | ");
-				lastname = strtok(NULL, " | ");
-				visaType = strtok(NULL, " | ");
-				isValidVisa = strtok(NULL, " | ");
-				isStampingDone = strtok(NULL, " | ");
+				char delimiter[] = " | ";
+
+				firstname = line.substr(0, line.find(delimiter));
+				line = line.substr(line.find(delimiter)+1, line.length());
+				lastname = line.substr(0, line.find(delimiter));
+				line = line.substr(line.find(delimiter)+1, line.length());
+				visaType = line.substr(0, line.find(delimiter));
+				line = line.substr(line.find(delimiter)+1, line.length());
+				isValidVisa = line.substr(0, line.find(delimiter));
+				line = line.substr(line.find(delimiter)+1, line.length());
+				isStampingDone = line.substr(0, line.find(delimiter));
+
+
+
 				travelers[i].setFirstName(firstname);
 				travelers[i].setLastName(lastname);
 				travelers[i].setVisaType(visaType);
@@ -326,29 +371,34 @@ int main(int argc, char* argv[]) {
 
 //	dataGenerator::writeToFile();
 	
+	cout << "************************Parallel Work Statistics******************************";
     std::chrono::time_point<std::chrono::system_clock> start, end;
     readFirstCharacters();
 
-
-
-	//cout << "Creating Batch Travelers"<<endl;
-    //Main:: batchTravelers();
-
-	//cout << "Adding Batch Officers";
-	//Main:: addOfficers();
 	
-	cout << "Progressing work"<<endl;
+	cout << endl << "Progressing work"<<endl;
+
 	start = std::chrono::system_clock::now();
 	Main:: progressWorkParallel();
-//	Main:: progressWork();
 	end = std::chrono::system_clock::now();
-	
 
 	std::chrono::duration<double> elapsed_seconds = end-start;
-	
 
 	std::cout << "finished computation at " << endl
               << "elapsed time: " << elapsed_seconds.count() << "s\n";
+	cout << "************************Sequential Work Statistics******************************";
+
+	cout << endl << "Progressing work"<<endl;
+	start = std::chrono::system_clock::now();
+	Main:: progressWork();
+	end = std::chrono::system_clock::now();
+
+	elapsed_seconds = end-start;
+
+	std::cout << "finished computation at " << endl
+              << "elapsed time: " << elapsed_seconds.count() << "s\n";
+
+	cout << "******************************************************"<< endl;
 
 //	Main::printTravelers();
 	cleanup();
