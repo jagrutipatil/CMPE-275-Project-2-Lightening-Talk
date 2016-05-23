@@ -13,7 +13,7 @@
 
 #define NUM_THREADS 8
 #include "../queue/StampingService.h"
-string filePath = "/home/jagruti/workspace/CMPE-275-Project-2-Lightening-Talk/Code/data.txt";
+string filePath = "";
 int count = 60000;
 int *arr = new int[count];
 
@@ -371,34 +371,40 @@ int main(int argc, char* argv[]) {
 
 //	dataGenerator::writeToFile();
 	
-	cout << "************************Parallel Work Statistics******************************";
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    readFirstCharacters();
+	if ( argc > 1) {
+		filePath = argv[1];
+		cout<< "\nReading Data From File: " << filePath;
+		cout << "\n************************Parallel Work Statistics******************************";
+	    std::chrono::time_point<std::chrono::system_clock> start, end;
+	    readFirstCharacters();
 
-	
-	cout << endl << "Progressing work"<<endl;
 
-	start = std::chrono::system_clock::now();
-	Main:: progressWorkParallel();
-	end = std::chrono::system_clock::now();
+		cout << endl << "Progressing work"<<endl;
 
-	std::chrono::duration<double> elapsed_seconds = end-start;
+		start = std::chrono::system_clock::now();
+		Main:: progressWorkParallel();
+		end = std::chrono::system_clock::now();
 
-	std::cout << "finished computation at " << endl
-              << "elapsed time: " << elapsed_seconds.count() << "s\n";
-	cout << "************************Sequential Work Statistics******************************";
+		std::chrono::duration<double> elapsed_seconds = end-start;
 
-	cout << endl << "Progressing work"<<endl;
-	start = std::chrono::system_clock::now();
-	Main:: progressWork();
-	end = std::chrono::system_clock::now();
+		std::cout << "finished computation at " << endl
+	              << "elapsed time: " << elapsed_seconds.count() << "s\n";
+		cout << "\n************************Sequential Work Statistics******************************";
 
-	elapsed_seconds = end-start;
+		cout << endl << "Progressing work"<<endl;
+		start = std::chrono::system_clock::now();
+		Main:: progressWork();
+		end = std::chrono::system_clock::now();
 
-	std::cout << "finished computation at " << endl
-              << "elapsed time: " << elapsed_seconds.count() << "s\n";
+		elapsed_seconds = end-start;
 
-	cout << "******************************************************"<< endl;
+		std::cout << "finished computation at " << endl
+	              << "elapsed time: " << elapsed_seconds.count() << "s\n";
+
+		cout << "\n******************************************************"<< endl;
+	} else {
+		cout << "\nPlease give Data File path as input\n Usage: <program> <filepath>\n";
+	}
 
 //	Main::printTravelers();
 	cleanup();
