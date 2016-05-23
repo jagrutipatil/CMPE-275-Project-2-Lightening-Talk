@@ -8,7 +8,7 @@
 #include "omp.h"
 #include <ctime>
 #include <chrono>
-#define NUM_THREADS 20
+#define NUM_THREADS 8
 #include "../queue/StampingService.h"
 string filePath = "/cygdrive/c/Users/awais_000/Documents/Gash/CMPE-275-Project-2-Lightening-Talk/Code/data.txt";
 int count = 60000;
@@ -171,22 +171,34 @@ void addOfficers() {
 
 void progressWork() {
 	cout << "\nStarted Processing Work"<<endl;
-	int i = 0;
-	std::ifstream is;
-	std::ifstream infile(filePath.c_str());
-	string line;
-	int byte;
-	string firstname, lastname, visaType, isValidVisa, isStampingDone;
+	
+	
 	#pragma omp parallel
 	{
 		//int id = omp_get_thread_num();
-		while (i < count) {
+		int i = 0;
+
+		std::ifstream infile(filePath.c_str());
+		string line;
+
+		int byte;
+		string firstname, lastname, visaType, isValidVisa, isStampingDone;
+
+		#pragma omp for
+		for(i=omp_get_thread_num(); i<count; i=i+8){
+			
 			//printf("Thread: %d\n",id);
-//			Officer* offc = stmps.getAvailableOfficer();
+		
+			//			Officer* offc = stmps.getAvailableOfficer();
 			//cout<<"i: "<<i<<" arr[i]: "<<arr[i]<<endl;
+			//printf("In Loop\n");
 			infile.clear();
-			infile.seekg(arr[i]);
+			if(i<count){
+				infile.seekg(arr[i]);
+			}
 			getline(infile, line);
+			std::istringstream iss(line);
+			//printf("i: %d, line: %s\n",i,line);
 			//cout<<"Line "<<i<<": "<<line<<endl;
 			char * dup = strdup(line.c_str());
 			char * token = strtok(dup, " | ");
@@ -199,15 +211,18 @@ void progressWork() {
 			travelers[i].setFirstName(firstname);
 			travelers[i].setLastName(lastname);
 			travelers[i].setVisaType(visaType);
-
+			//cout<<travelers[i].toString();
 
 			if(i < count && travelers[i].ifValidVisa()) {
 					travelers[i].setStampingStatus(true);
-			} else {
+			} else if( i <count){
 				travelers[i].setStampingStatus(false);
 			}
-			#pragma omp critical
-				 i++;
+			//#pragma omp critical
+				 //i++;
+
+			
+			
 		}
 	}
 }
