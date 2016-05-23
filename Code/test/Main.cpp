@@ -398,7 +398,7 @@ int main(int argc, char* argv[]) {
 	std::cout << "finished computation at " << endl
               << "elapsed time: " << elapsed_seconds.count() << "s\n";
 
-	cout << "******************************************************";
+	cout << "******************************************************"<< endl;
 
 //	Main::printTravelers();
 	cleanup();
