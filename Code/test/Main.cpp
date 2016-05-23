@@ -8,12 +8,19 @@
 #include "omp.h"
 #include <ctime>
 #include <chrono>
+#include <thread>
+#include <unistd.h>
+
 #define NUM_THREADS 8
 #include "../queue/StampingService.h"
 string filePath = "/home/jagruti/workspace/CMPE-275-Project-2-Lightening-Talk/Code/data.txt";
-int count = 200;
+int count = 60000;
 int *arr = new int[count];
+
 Traveler *travelers = new Traveler[count];
+string q1ans[]  = {"India", "USA", "China", "Bangladesh"};
+string felony[]  = {"yes", "no", "minor", "major"};
+
 
 using namespace stampingService;
 
@@ -169,22 +176,24 @@ namespace Main {
 			stmps.addOfficer(offc);
 		}
 	}
-	
-	void progressWork() {
-		cout << "\nStarted Processing Work"<<endl;
+
+	bool allQuestionsAnswered(Traveler travelers) {
+		usleep(500);
+		return true;
+	}
+
+	void progressWorkParallel() {
+		cout << "\nStarted Parallel Processing Work"<<endl;
 
 		#pragma omp parallel
 		{
 			int i = 0;
-			cout << endl << "Total Threads: "<< omp_get_num_threads();
 			std::ifstream infile(filePath.c_str());
 			string line;
 			int byte;
 			string firstname, lastname, visaType, isValidVisa, isStampingDone;
 
 			for(i=omp_get_thread_num(); i < count; i=i + omp_get_num_threads()) {
-
-				cout<< endl <<"Thread: " << omp_get_thread_num();
 				infile.clear();
 				if(i < count) {
 					infile.seekg(arr[i]);
@@ -194,16 +203,24 @@ namespace Main {
 
 				char * dup = strdup(line.c_str());
 
-				#pragma omp critical
-				{
-					char * token = strtok(dup, " | ");
-					byte = atoi(token);
-					firstname = strtok(NULL, " | ");
-					lastname = strtok(NULL, " | ");
-					visaType = strtok(NULL, " | ");
-					isValidVisa = strtok(NULL, " | ");
-					isStampingDone = strtok(NULL, " | ");
-				}
+//					char * token = strtok(dup, " | ");
+//					byte = atoi(token);
+//					firstname = strtok(NULL, " | ");
+//					lastname = strtok(NULL, " | ");
+//					visaType = strtok(NULL, " | ");
+//					isValidVisa = strtok(NULL, " | ");
+//					isStampingDone = strtok(NULL, " | ");
+					char delimiter[] = " | ";
+
+					firstname = line.substr(0, line.find(delimiter));
+					line = line.substr(line.find(delimiter)+1, line.length());
+					lastname = line.substr(0, line.find(delimiter));
+					line = line.substr(line.find(delimiter)+1, line.length());
+					visaType = line.substr(0, line.find(delimiter));
+					line = line.substr(line.find(delimiter)+1, line.length());
+					isValidVisa = line.substr(0, line.find(delimiter));
+					line = line.substr(line.find(delimiter)+1, line.length());
+					isStampingDone = line.substr(0, line.find(delimiter));
 
 				if (i < count) {
 					travelers[i].setFirstName(firstname);
@@ -231,9 +248,49 @@ namespace Main {
 		}
 	}
 
-	bool allQuestionsAnswered(Traveler travelers) {
 
-	}
+	
+	void progressWork() {
+		cout << "\nStarted Sequential Processing Work"<<endl;
+			int i = 0;
+			std::ifstream infile(filePath.c_str());
+			string line;
+			int byte;
+			string firstname, lastname, visaType, isValidVisa, isStampingDone;
+
+			for(i = 0; i < count; i = i + 1) {
+				infile.clear();
+				if(i < count) {
+					infile.seekg(arr[i]);
+				}
+				getline(infile, line);
+				std::istringstream iss(line);
+
+				char * dup = strdup(line.c_str());
+
+
+				char * token = strtok(dup, " | ");
+				byte = atoi(token);
+				firstname = strtok(NULL, " | ");
+				lastname = strtok(NULL, " | ");
+				visaType = strtok(NULL, " | ");
+				isValidVisa = strtok(NULL, " | ");
+				isStampingDone = strtok(NULL, " | ");
+				travelers[i].setFirstName(firstname);
+				travelers[i].setLastName(lastname);
+				travelers[i].setVisaType(visaType);
+
+				if (travelers[i].ifValidVisa()) {
+					if (allQuestionsAnswered(travelers[i])) {
+						travelers[i].setStampingStatus(true);
+		   		    }
+				} else if( i < count) {
+					travelers[i].setStampingStatus(false);
+				}
+			}
+		}
+
+
 
 	void printTravelers() {
 		for (int i = 0; i < count; i++) {
@@ -282,7 +339,8 @@ int main(int argc, char* argv[]) {
 	
 	cout << "Progressing work"<<endl;
 	start = std::chrono::system_clock::now();
-	Main:: progressWork();
+	Main:: progressWorkParallel();
+//	Main:: progressWork();
 	end = std::chrono::system_clock::now();
 	
 
@@ -292,5 +350,6 @@ int main(int argc, char* argv[]) {
 	std::cout << "finished computation at " << endl
               << "elapsed time: " << elapsed_seconds.count() << "s\n";
 
+//	Main::printTravelers();
 	cleanup();
 }
